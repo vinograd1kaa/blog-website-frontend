@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Grid from '@mui/material/Grid';
 
 import { fetchPosts, fetchTags } from "../redux/slices/posts";
+import { fetchLastComments } from "../redux/slices/comments";
 
 import { Post } from '../components/Post';
 import { TagsBlock } from '../components/TagsBlock';
@@ -14,20 +15,27 @@ export const Home = () => {
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth.data);
   const { posts, tags } = useSelector((state) => state.posts);
+  const lastComments = useSelector((state) => state.comments.comments.items);
+
+  const [sortPostsBy, setSortPostsBy] = useState(0);
 
   const isPostsLoading = posts.status === 'loading';
   const isTagsLoading = tags.status === 'loading';
 
   React.useEffect(() => {
-    dispatch(fetchPosts());
+    dispatch(fetchPosts(sortPostsBy));
     dispatch(fetchTags());
-  }, [])
+    dispatch(fetchLastComments());
+  }, [sortPostsBy])
+
+  const handleSortByNew = () => setSortPostsBy(0);
+  const handleSortByPopularity = () => setSortPostsBy(1);
 
   return (
     <>
-      <Tabs style={{ marginBottom: 15 }} value={0} aria-label="basic tabs example">
-        <Tab label="Новые" />
-        <Tab label="Популярные" />
+      <Tabs style={{ marginBottom: 15 }} value={sortPostsBy} aria-label="basic tabs example">
+        <Tab onClick={handleSortByNew} label="Новые" />
+        <Tab onClick={handleSortByPopularity} label="Популярные" />
       </Tabs>
       <Grid container spacing={4}>
         <Grid xs={8} item>
@@ -42,7 +50,6 @@ export const Home = () => {
                 user={obj.user}
                 createdAt={obj.createdAt}
                 viewsCount={obj.viewsCount}
-                commentsCount={3}
                 tags={obj.tags}
                 isEditable={userData?._id === obj.user._id}
               />
@@ -52,22 +59,7 @@ export const Home = () => {
         <Grid xs={4} item>
           <TagsBlock items={tags.items} isLoading={isTagsLoading} />
           <CommentsBlock
-            items={[
-              {
-                user: {
-                  fullName: 'Вася Пупкин',
-                  avatarUrl: 'https://mui.com/static/images/avatar/1.jpg',
-                },
-                text: 'Это тестовый комментарий',
-              },
-              {
-                user: {
-                  fullName: 'Иван Иванов',
-                  avatarUrl: 'https://mui.com/static/images/avatar/2.jpg',
-                },
-                text: 'When displaying three lines or more, the avatar is not aligned at the top. You should set the prop to align the avatar at the top',
-              },
-            ]}
+            items={lastComments}
             isLoading={false}
           />
         </Grid>
