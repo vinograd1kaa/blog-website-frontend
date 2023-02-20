@@ -9,6 +9,7 @@ import EyeIcon from '@mui/icons-material/RemoveRedEyeOutlined';
 import CommentIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 
 import styles from './Post.module.scss';
+import "../../index.css";
 
 import { UserInfo } from '../UserInfo';
 import { PostSkeleton } from './Skeleton';
@@ -41,7 +42,7 @@ export const Post = ({
   return (
     <div className={clsx(styles.root, { [styles.rootFull]: isFullPost })}>
       {isEditable && (
-        <div className={styles.editButtons}>
+        <div className="editButtons">
           <Link to={`/posts/${_id}/edit`}>
             <IconButton color="primary">
               <EditIcon />
